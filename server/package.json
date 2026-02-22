@@ -1,0 +1,30 @@
+{
+    "name": "smart-kisan-mitra-api",
+    "version": "1.0.0",
+    "description": "Backend REST API for Smart Kisan Mitra farmer assistance platform",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "nodemon server.js"
+    },
+    "keywords": [
+        "agriculture",
+        "farmer",
+        "mern",
+        "api"
+    ],
+    "author": "Smart Kisan Mitra",
+    "license": "MIT",
+    "dependencies": {
+        "axios": "^1.7.9",
+        "cors": "^2.8.5",
+        "dotenv": "^16.6.1",
+        "express": "^4.21.2",
+        "express-rate-limit": "^7.5.0",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.9.5"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.9"
+    }
+}
