@@ -1,11 +1,11 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const axios = require('axios');
 
-// ─── @desc   Get current weather for a city
-// ─── @route  GET /api/weather?city=cityname
+// ─── @desc   Get current weather — accepts ?city=name OR ?lat=&lon=
+// ─── @route  GET /api/weather
 // ─── @access Public
 const getWeather = asyncHandler(async (req, res) => {
-    const city = req.query.city || 'Lucknow';
+    const { city, lat, lon } = req.query;
     const apiKey = process.env.OPENWEATHER_API_KEY;
 
     // If no real API key configured, return mock data
@@ -13,23 +13,19 @@ const getWeather = asyncHandler(async (req, res) => {
         return res.status(200).json({
             success: true,
             source: 'mock',
-            note: 'Set OPENWEATHER_API_KEY in .env to get real weather data',
-            data: getMockWeather(city),
+            data: getMockWeather(city || 'Lucknow'),
         });
     }
 
     try {
+        // Build params: prefer lat/lon if provided, otherwise use city name
+        const params = lat && lon
+            ? { lat, lon, appid: apiKey, units: 'metric', lang: 'en' }
+            : { q: (city || 'Lucknow') + ',IN', appid: apiKey, units: 'metric', lang: 'en' };
+
         const response = await axios.get(
-            `https://api.openweathermap.org/data/2.5/weather`,
-            {
-                params: {
-                    q: city + ',IN',
-                    appid: apiKey,
-                    units: 'metric',
-                    lang: 'en',
-                },
-                timeout: 5000,
-            }
+            'https://api.openweathermap.org/data/2.5/weather',
+            { params, timeout: 5000 }
         );
 
         const w = response.data;
@@ -39,6 +35,8 @@ const getWeather = asyncHandler(async (req, res) => {
             data: {
                 city: w.name,
                 country: w.sys.country,
+                lat: w.coord.lat,
+                lon: w.coord.lon,
                 temp: Math.round(w.main.temp),
                 feelsLike: Math.round(w.main.feels_like),
                 humidity: w.main.humidity,
@@ -47,33 +45,32 @@ const getWeather = asyncHandler(async (req, res) => {
                 description: w.weather[0].description,
                 icon: `https://openweathermap.org/img/wn/${w.weather[0].icon}@2x.png`,
                 rainChance: w.clouds?.all || 0,
-                uvIndex: null, // requires separate API call
+                uvIndex: null,
                 sunrise: new Date(w.sys.sunrise * 1000).toLocaleTimeString('en-IN'),
                 sunset: new Date(w.sys.sunset * 1000).toLocaleTimeString('en-IN'),
             },
         });
     } catch (error) {
         if (error.response?.status === 404) {
-            return res.status(404).json({ success: false, message: `City "${city}" not found` });
+            return res.status(404).json({ success: false, message: `City "${city}" not found. Try another name.` });
         }
         if (error.response?.status === 401) {
             return res.status(500).json({ success: false, message: 'Invalid OpenWeatherMap API key' });
         }
-        // Fallback to mock data on any network error
+        // Fallback to mock data on network error
         return res.status(200).json({
             success: true,
             source: 'mock_fallback',
-            note: 'Live API unavailable — returning mock data',
-            data: getMockWeather(city),
+            data: getMockWeather(city || 'Lucknow'),
         });
     }
 });
 
-// ─── @desc   Get 5-day forecast
-// ─── @route  GET /api/weather/forecast?city=cityname
+// ─── @desc   Get 5-day forecast — accepts ?city=name OR ?lat=&lon=
+// ─── @route  GET /api/weather/forecast
 // ─── @access Public
 const getForecast = asyncHandler(async (req, res) => {
-    const city = req.query.city || 'Lucknow';
+    const { city, lat, lon } = req.query;
     const apiKey = process.env.OPENWEATHER_API_KEY;
 
     if (!apiKey || apiKey === 'your_openweathermap_api_key_here') {
@@ -81,12 +78,13 @@ const getForecast = asyncHandler(async (req, res) => {
     }
 
     try {
+        const params = lat && lon
+            ? { lat, lon, appid: apiKey, units: 'metric', cnt: 5 }
+            : { q: (city || 'Lucknow') + ',IN', appid: apiKey, units: 'metric', cnt: 5 };
+
         const response = await axios.get(
-            `https://api.openweathermap.org/data/2.5/forecast`,
-            {
-                params: { q: city + ',IN', appid: apiKey, units: 'metric', cnt: 5 },
-                timeout: 5000,
-            }
+            'https://api.openweathermap.org/data/2.5/forecast',
+            { params, timeout: 5000 }
         );
 
         const days = response.data.list.map((item) => ({
@@ -107,7 +105,7 @@ const getForecast = asyncHandler(async (req, res) => {
     }
 });
 
-// ─── Mock data helpers ─────────────────────────────────────────────────
+// ─── Mock helpers ──────────────────────────────────────────────────────────────
 const getMockWeather = (city) => ({
     city,
     temp: 24,
@@ -117,17 +115,17 @@ const getMockWeather = (city) => ({
     condition: 'Partly Cloudy',
     description: 'partly cloudy',
     rainChance: 30,
-    uvIndex: 5,
+    uvIndex: null,
     sunrise: '6:42 AM',
     sunset: '6:18 PM',
 });
 
 const getMockForecast = () => [
-    { day: 'Today', high: 24, low: 16, condition: 'Partly Cloudy', rainProbability: 30 },
-    { day: 'Sat', high: 26, low: 17, condition: 'Sunny', rainProbability: 5 },
-    { day: 'Sun', high: 22, low: 15, condition: 'Rainy', rainProbability: 80 },
-    { day: 'Mon', high: 20, low: 13, condition: 'Cloudy', rainProbability: 60 },
-    { day: 'Tue', high: 25, low: 16, condition: 'Sunny', rainProbability: 10 },
+    { datetime: null, day: 'Today', high: 24, low: 16, condition: 'Partly Cloudy', rainProbability: 30 },
+    { datetime: null, day: 'Sat', high: 26, low: 17, condition: 'Clear', rainProbability: 5 },
+    { datetime: null, day: 'Sun', high: 22, low: 15, condition: 'Rain', rainProbability: 80 },
+    { datetime: null, day: 'Mon', high: 20, low: 13, condition: 'Clouds', rainProbability: 60 },
+    { datetime: null, day: 'Tue', high: 25, low: 16, condition: 'Clear', rainProbability: 10 },
 ];
 
 module.exports = { getWeather, getForecast };

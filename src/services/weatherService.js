@@ -1,18 +1,18 @@
 import api from './api';
 
 // ── Get current weather ───────────────────────────────────────────────────────
-// GET /api/weather?city=Lucknow
-// Returns { success, source, data: { city, temp, feelsLike, humidity, ... } }
-export const getCurrentWeather = async (city = 'Lucknow') => {
-    const { data } = await api.get('/weather', { params: { city } });
+// Accepts either city name OR { lat, lon } coordinates
+export const getCurrentWeather = async (location = {}) => {
+    const { city, lat, lon } = location;
+    const params = lat && lon ? { lat, lon } : { city: city || 'Lucknow' };
+    const { data } = await api.get('/weather', { params });
     return data.data;
 };
 
 // ── Get 5-day forecast ────────────────────────────────────────────────────────
-// GET /api/weather/forecast?city=Lucknow
-// Returns { success, source, data: [...] }
-export const getForecast = async (city = 'Lucknow') => {
-    const { data } = await api.get('/weather/forecast', { params: { city } });
+export const getForecast = async (location = {}) => {
+    const { city, lat, lon } = location;
+    const params = lat && lon ? { lat, lon } : { city: city || 'Lucknow' };
+    const { data } = await api.get('/weather/forecast', { params });
     return data.data;
 };
-
