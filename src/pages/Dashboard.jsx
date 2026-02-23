@@ -128,6 +128,40 @@ export default function Dashboard() {
                     )}
                 </div>
 
+                {/* ── Crop Recommendation Banner ──────────────────── */}
+                <button
+                    onClick={() => navigate('/recommend')}
+                    className="w-full card bg-gradient-to-r from-primary-600 to-primary-700 border-0 text-left hover:opacity-95 active:scale-[0.98] transition-all"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">
+                            ✨
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-white font-bold text-base">Get Crop Recommendation</p>
+                            <p className="text-primary-200 text-xs mt-0.5">Best crops for your soil, location & weather</p>
+                        </div>
+                        <ArrowRightIcon className="h-5 w-5 text-white/70 flex-shrink-0" />
+                    </div>
+                </button>
+
+                {/* ── Govt Schemes Banner ─────────────────────────── */}
+                <button
+                    onClick={() => navigate('/schemes')}
+                    className="w-full card bg-gradient-to-r from-indigo-600 to-indigo-700 border-0 text-left hover:opacity-95 active:scale-[0.98] transition-all"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">
+                            🏛️
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-white font-bold text-base">Government Schemes</p>
+                            <p className="text-indigo-200 text-xs mt-0.5">PM-KISAN, PMFBY, KCC & 15+ farmer schemes</p>
+                        </div>
+                        <ArrowRightIcon className="h-5 w-5 text-white/70 flex-shrink-0" />
+                    </div>
+                </button>
+
                 <div>
                     <h2 className="section-title">{t('dash_quick_actions')}</h2>
                     <div className="grid grid-cols-2 gap-3">

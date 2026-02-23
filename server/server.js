@@ -10,6 +10,7 @@ const expenseRoutes = require('./routes/expenseRoutes');
 const cropRoutes = require('./routes/cropRoutes');
 const weatherRoutes = require('./routes/weatherRoutes');
 const mandiRoutes = require('./routes/mandiRoutes');
+const schemesRoutes = require('./routes/schemesRoutes');
 
 // ─── Connect to MongoDB ────────────────────────────────────────────────────
 connectDB();
@@ -18,12 +19,22 @@ connectDB();
 const app = express();
 
 // ─── CORS ──────────────────────────────────────────────────────────────────
+const allowedOrigins = [
+    process.env.CLIENT_URL,          // e.g. https://smart-kisan-mitra.vercel.app
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000',
+].filter(Boolean);
+
 app.use(cors({
-    origin: [
-        process.env.CLIENT_URL || 'http://localhost:5173',
-        'http://localhost:5174',
-        'http://localhost:3000',
-    ],
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        // Allow any *.vercel.app preview deployment
+        if (origin.endsWith('.vercel.app')) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -56,6 +67,7 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/crop', cropRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/mandi', mandiRoutes);
+app.use('/api/schemes', schemesRoutes);
 
 // ─── 404 handler ──────────────────────────────────────────────────────────
 app.use((req, res, next) => {

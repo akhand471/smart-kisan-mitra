@@ -1,10 +1,14 @@
 import api from './api';
 
-// ── Calculate crop profit/loss ────────────────────────────────────────────────
-// POST /api/crop/calculate
-// Body: { seedCost, fertilizerCost, labourCost, landArea, expectedYield, marketPrice }
-// Returns { success, result: { totalCost, expectedRevenue, estimatedProfit, ... } }
-export const calculateCrop = async (inputs) => {
-    const { data } = await api.post('/crop/calculate', inputs);
-    return data.result;
+// ── Calculate profit/loss ─────────────────────────────────────────────────────
+export const calculateCrop = async (data) => {
+    const { data: res } = await api.post('/crop/calculate', data);
+    return res.result;
+};
+
+// ── Get high-income crop recommendations ──────────────────────────────────────
+// params: { soilType, state, temp, humidity }
+export const getRecommendations = async (params) => {
+    const { data } = await api.post('/crop/recommend', params);
+    return data; // { season, inputs, recommendations[] }
 };

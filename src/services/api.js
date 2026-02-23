@@ -1,8 +1,14 @@
 import axios from 'axios';
 
-// Central axios instance — baseURL uses Vite proxy (no CORS in dev)
+// In production (Vercel), VITE_API_URL points to the Render backend.
+// In development, the Vite proxy rewrites /api → localhost:5001 so we use '/api'.
+const BASE_URL = import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : '/api';
+
+// Central axios instance
 const api = axios.create({
-    baseURL: '/api',
+    baseURL: BASE_URL,
     headers: { 'Content-Type': 'application/json' },
     timeout: 10000,
 });

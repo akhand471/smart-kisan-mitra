@@ -11,6 +11,8 @@ import MandiPrices from './pages/MandiPrices';
 import CropCalculator from './pages/CropCalculator';
 import ExpenseTracker from './pages/ExpenseTracker';
 import Weather from './pages/Weather';
+import CropRecommendation from './pages/CropRecommendation';
+import GovernmentSchemes from './pages/GovernmentSchemes';
 
 export default function App() {
   return (
@@ -48,6 +50,14 @@ export default function App() {
             <Route
               path="/weather"
               element={<ProtectedRoute><Weather /></ProtectedRoute>}
+            />
+            <Route
+              path="/recommend"
+              element={<ProtectedRoute><CropRecommendation /></ProtectedRoute>}
+            />
+            <Route
+              path="/schemes"
+              element={<ProtectedRoute><GovernmentSchemes /></ProtectedRoute>}
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
